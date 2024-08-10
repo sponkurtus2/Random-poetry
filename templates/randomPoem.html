@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ poem.title }}</title>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.sand.min.css"
+    >
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
+    >
+    <style>
+        pre {
+            background-color: #f4f4f4; /* Fondo claro */
+            color: #333; /* Color de texto */
+            padding: 15px; /* Espaciado interno */
+            border-radius: 8px; /* Bordes redondeados */
+            font-family: 'Courier New', Courier, monospace; /* Fuente monoespaciada */
+            font-size: 20px; /* Tamaño de fuente */
+            font-weight: bold;
+            line-height: 1.6; /* Altura de línea para mayor legibilidad */
+            white-space: pre-wrap; /* Ajuste de línea automático */
+            word-wrap: break-word; /* Corte de palabras largas */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    {% include "nav.html" %}
+
+    <article style="text-align: center;">
+        <h1>{{ poem.title }}</h1>
+        <br>
+        <h2>By {{ poem.author }}</h2>
+        <article>
+        <pre>
+        {{ poem.lines | join(sep=" \n ") }}
+        </pre>
+        </article>
+    </article>
+
+</div>
+</body>
+</html>

@@ -1,42 +1,50 @@
 mod authors;
+mod poem;
 
+use std::fs;
+use std::sync::Arc;
 use crate::authors::get_authors;
-use actix_web::Responder;
-use actix_web::web::route;
-use axum::{routing::get, Json, Router};
+use crate::poem::{get_all_poems, get_one_random_poem};
+use axum::{routing::get, Router, Extension};
+use axum::response::{IntoResponse, Html};
+use lazy_static::lazy_static;
+use tera::{Context, Tera};
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
 
-#[derive(Deserialize, Serialize)]
-struct Poem {
-    title: String,
-    author: String,
-    lines: Vec<String>,
-}
-
-async fn index() -> Json<Value> {
-    // Hacer la llamada usando Reqwest
-    let response = reqwest::get("https://poetrydb.org/author,title/Shakespeare;Sonnet")
-        .await
-        .expect("Failed to fetch api");
-
-    let poems: Vec<Poem> = response.json().await.expect("Failed to get poems");
-
-    // Construir una respuesta JSON
-    let json_data = json!({
-        "poems": poems,
-    });
-
-    Json(json_data)
-
+lazy_static! {
+    static ref TEMPLATES: Tera = {
+        let mut tera = Tera::new("templates/**/*").expect("Failed to initialize Tera");
+        tera.autoescape_on(vec!["html"]);
+        tera
+    };
 }
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+
+    let tera = Arc::new(TEMPLATES.clone());
+
     let app = Router::new()
-        .route("/", get(index))
-        .route("/authors", get(get_authors));
+        .route("/", get(root))
+        .route("/about", get(about_page))
+        .route("/poems", get(get_all_poems))
+        .route("/random", get(get_one_random_poem))
+        .route("/authors", get(get_authors))
+        .layer(Extension(tera));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
+}
+
+async fn root(Extension(tera): Extension<Arc<Tera>>) -> Html<String> {
+    let mut context = Context::new();
+    let rendered = tera.render("index.html", &context).expect("Failed to render template");
+    Html(rendered)
+}
+
+async fn about_page() -> impl IntoResponse {
+    match fs::read_to_string("../About.html") {
+        Ok(content) => Html(content),
+        Err(e) => Html(format!("Error loading about page: {}", e))
+    }
 }
