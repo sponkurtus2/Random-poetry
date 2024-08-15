@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ poem.title }}</title>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.sand.min.css"
+    >
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
+    >
+</head>
+<body>
+<div class="container">
+    {% include "nav.html" %}
+
+     <h1>Authors</h1>
+
+    <article style="text-align: center;">
+        <br>
+        <h2>By {{ author }}</h2>
+        <article>
+        <pre>
+        {{ author.lines | join(sep=" \n ") }}
+        </pre>
+        </article>
+    </article>
+
+</div>
+</body>
+</html>
