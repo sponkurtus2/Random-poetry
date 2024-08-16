@@ -1,3 +1,9 @@
-/target
+# IDE
 /.idea
+
+# Rust packages
 cargo.lock
+/target
+
+# Misc
+todo.txt

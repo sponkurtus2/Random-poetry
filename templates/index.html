@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,15 +12,127 @@
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css"
     >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+
+        [data-theme="light"] {
+            --color-bg: #ffffff;
+            --color-fg: #000000;
+        }
+
+        [data-theme="dark"] {
+            --color-bg: #000000;
+            --color-fg: #ffffff;
+        }
+
+        body {
+            --color-bg: var(--color-bg);
+            --color-fg: var(--color-fg);
+        }
+
+
+        main {
+            margin-top: 2em;
+            padding: 0 20px;
+        }
+
+        .intro {
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 50px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .intro h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        .intro p {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        button[data-theme-toggle] {
+            border: none;
+            outline: none;
+        }
+
+        button[data-theme-toggle]:focus,
+        button[data-theme-toggle]:active {
+            outline: none;
+            box-shadow: none; /* Remove any shadow effects */
+        }
+
+    </style>
 </head>
 <body>
 <div class="container">
     {% include "nav.html" %}
 
-    <h1> Welcome ^^</h1>
+    <main>
 
+    <div class="container-fluid" style="">
+
+            <section class="intro">
+            <h1> <b> Poesy </b></h1>
+            <p> A world with poesy</p>
+            </section>
+
+    </div>
+
+    </main>
 </div>
 
 
+<script>
+    function calculateSettingAsThemeString({ localStorageTheme, systemSettingDark }) {
+        if (localStorageTheme !== null) {
+            return localStorageTheme;
+        }
+
+        if (systemSettingDark.matches) {
+            return "dark";
+        }
+
+        return "light";
+    }
+
+    function updateButton({ buttonEl, isDark }) {
+        const newCta = isDark ? "" : "";
+        buttonEl.setAttribute("aria-label", newCta);
+
+        // Update only the text content while preserving the icon
+        const iconElement = buttonEl.querySelector('i');
+        buttonEl.innerHTML = ''; // Clear existing content
+        buttonEl.appendChild(iconElement); // Re-add the icon
+        buttonEl.appendChild(document.createTextNode(' ' + newCta)); // Add text next to the icon
+    }
+
+    function updateThemeOnHtmlEl({ theme }) {
+        document.querySelector("html").setAttribute("data-theme", theme);
+    }
+
+    const button = document.querySelector("[data-theme-toggle]");
+    const localStorageTheme = localStorage.getItem("theme");
+    const systemSettingDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+    let currentThemeSetting = calculateSettingAsThemeString({ localStorageTheme, systemSettingDark });
+
+    updateButton({ buttonEl: button, isDark: currentThemeSetting === "dark" });
+    updateThemeOnHtmlEl({ theme: currentThemeSetting });
+
+    button.addEventListener("click", (event) => {
+        const newTheme = currentThemeSetting === "dark" ? "light" : "dark";
+
+        localStorage.setItem("theme", newTheme);
+        updateButton({ buttonEl: button, isDark: newTheme === "dark" });
+        updateThemeOnHtmlEl({ theme: newTheme });
+
+        currentThemeSetting = newTheme;
+    });
+</script>
 </body>
 </html>

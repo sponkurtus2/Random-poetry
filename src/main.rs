@@ -36,12 +36,15 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+
+// Route for the Home page
 async fn root(Extension(tera): Extension<Arc<Tera>>) -> Html<String> {
     let mut context = Context::new();
     let rendered = tera.render("index.html", &context).expect("Failed to render template");
     Html(rendered)
 }
 
+// Route for the about page
 async fn about_page() -> impl IntoResponse {
     match fs::read_to_string("../About.html") {
         Ok(content) => Html(content),
