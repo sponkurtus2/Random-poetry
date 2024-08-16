@@ -1,5 +1,6 @@
 mod poem;
 
+use std::env;
 use crate::poem::{get_all_poems, get_one_random_poem};
 use axum::response::{Html};
 use axum::{routing::get, Extension, Router};
@@ -26,7 +27,13 @@ async fn main() {
         .route("/random", get(get_one_random_poem))
         .layer(Extension(tera));
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
+    let port: u16 = env::var("PORT")
+        .unwrap_or("8080".to_string())
+        .parse()
+        .unwrap();
+
+    //let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
+    let listener = tokio::net::TcpListener::bind(("127.0.0.1", port))
         .await
         .unwrap();
     axum::serve(listener, app).await.unwrap();
