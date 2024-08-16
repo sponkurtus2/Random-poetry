@@ -1,13 +1,9 @@
-mod authors;
 mod poem;
 
-use crate::authors::get_authors;
 use crate::poem::{get_all_poems, get_one_random_poem};
-use authors::get_random_authors;
-use axum::response::{Html, IntoResponse};
+use axum::response::{Html};
 use axum::{routing::get, Extension, Router};
 use lazy_static::lazy_static;
-use std::fs;
 use std::sync::Arc;
 use tera::{Context, Tera};
 
@@ -25,11 +21,9 @@ async fn main() {
 
     let app = Router::new()
         .route("/", get(root))
-        .route("/about", get(about_page))
+        .route("/about", get(about))
         .route("/poems", get(get_all_poems))
         .route("/random", get(get_one_random_poem))
-        .route("/authors_api", get(get_authors))
-        .route("/authors", get(get_rendered_authors))
         .layer(Extension(tera));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8000")
@@ -41,18 +35,30 @@ async fn main() {
 
 // Route for the Home page
 async fn root(Extension(tera): Extension<Arc<Tera>>) -> Html<String> {
-    let context = Context::new();
-    let rendered = tera
+    let context: Context = Context::new();
+    let rendered: String = tera
         .render("index.html", &context)
-        .expect("Failed to render template");
+        .expect("Failed to render index.html");
     Html(rendered)
 }
 
-// Route for the about page
-async fn about_page() -> impl IntoResponse {
-    match fs::read_to_string("../About.html") {
-        Ok(content) => Html(content),
-        Err(e) => Html(format!("Error loading about page: {}", e)),
-    }
+// Route for the rendered About page
+async fn about(Extension(tera): Extension<Arc<Tera>>) -> Html<String> {
+    let context: Context = Context::new();
+    let rendered: String = tera
+        .render("about.html", &context)
+        .expect("Failed to render about.html");
+    Html(rendered)
+
 }
+
+// Route for the about page
+// This is the old route, and this way you can render a html page, but just the page (Not with tera)
+// async fn about_page() -> impl IntoResponse {
+    // match fs::read_to_string("templates/about.html") {
+        // Ok(content) => Html(content),
+        // Err(e) => Html(format!("Error loading about page: {}", e)),
+    // }
+// }
+
 
